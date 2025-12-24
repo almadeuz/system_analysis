@@ -1,7 +1,7 @@
 import numpy as np
 import sys
 
-def parse(txt):
+def parse(txt, root):
     edg = []
     ver = set()
     for lin in txt.strip().split('\n'):
@@ -10,9 +10,7 @@ def parse(txt):
             edg.append((par.strip(), chd.strip()))
             ver.add(par.strip())
             ver.add(chd.strip())
-    if edg:
-        rot = edg[0][0]
-        ver.add(rot)
+    ver.add(root)
     vls = sorted(ver, key=lambda x: int(x) if x.isdigit() else x)
     vtoi = {v: i for i, v in enumerate(vls)}
     n = len(vls)
@@ -21,6 +19,7 @@ def parse(txt):
         i = vtoi[par]
         j = vtoi[chd]
         adj[i][j] = True
+    
     return adj, vls
 
 def r1(adj):
@@ -36,6 +35,7 @@ def r3(adj):
         for i in range(n):
             if rch[i, k]:
                 rch[i] = rch[i] | rch[k]
+    
     res = rch & ~adj
     np.fill_diagonal(res, False)
     return res
@@ -57,9 +57,9 @@ def r5(adj):
                     res[b, a] = True
     return res
 
-
-def main(data):
-    adj, _ = parse(data)
+def main(s, e):
+    adj, _ = parse(s, e)
+    
     return (
         r1(adj).tolist(),
         r2(adj).tolist(),
@@ -69,18 +69,21 @@ def main(data):
     )
 
 data = "1,2\n1,3\n3,4\n3,5\n5,6\n6,7"
+root = "1"
 
-if len(sys.argv) > 1:
+if len(sys.argv) > 2:
     inp = sys.argv[1]
+    root = sys.argv[2]
+    
     if inp.endswith('.csv'):
         try:
             with open(inp, 'r') as f:
-                dat = f.read().strip()
+                data = f.read().strip()
         except:
             pass
 
-matrices = main(data)
-adj, vertices = parse(data)
+matrices = main(data, root)
+adj, vertices = parse(data, root)
 
 names = ["r1", "r2", "r3", "r4", "r5"]
 
